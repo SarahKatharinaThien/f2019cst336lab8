@@ -1,0 +1,23 @@
+{
+  "name": "f2019cst336lab8",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SarahKatharinaThien/f2019cst336lab8.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/SarahKatharinaThien/f2019cst336lab8/issues"
+  },
+  "homepage": "https://github.com/SarahKatharinaThien/f2019cst336lab8#readme",
+  "dependencies": {
+    "ejs": "^2.7.1",
+    "express": "^4.17.1"
+  }
+}

@@ -5,19 +5,21 @@
     <title>US Quiz (Express)</title>
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet"
           integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.9.1/underscore-min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 </head>
 <body class="text-center">
 
 <h1 class="jumbotron"> US Geography Quiz <br> Express Version </h1>
 
 <h3><span id="markImg1"></span> What is the capital of California?</h3>
-<input type="text" id="q1">
+<input type="text" id="q1" name="q1" value="">
 <br><br>
 <div id="q1Feedback"></div>
 <br>
 
 <h3><span id="markImg2"></span>What is the longest river?</h3>
-<select id="q2">
+<select id="q2" name="q2">
     <option value="">Select One</option>
     <option value="ms">Mississippi</option>
     <option value="mo">Missouri</option>
@@ -29,16 +31,16 @@
 <br>
 
 <h3><span id="markImg3"></span>What presidents are carved into mount Rushmore?</h3>
-<input type="checkbox" id="Jackson"> <label for="Jackson"> A. Jackson </label>
-<input type="checkbox" id="Franklin"> <label for="Franklin">B. Franklin </label>
-<input type="checkbox" id="Jefferson"> <label for="Jefferson">T. Jefferson</label>
-<input type="checkbox" id="Roosevelt"> <label for="Roosevelt">T. Roosevelt</label>
+<input type="checkbox" value="ja" name="q3" id="Jackson"> <label for="Jackson"> A. Jackson </label>
+<input type="checkbox" value="fr" name="q3" id="Franklin"> <label for="Franklin">B. Franklin </label>
+<input type="checkbox" value="je" name="q3" id="Jefferson"> <label for="Jefferson">T. Jefferson</label>
+<input type="checkbox" value="ro" name="q3" id="Roosevelt"> <label for="Roosevelt">T. Roosevelt</label>
 <br><br>
 <div id="q3Feedback"></div>
 <br>
 
 <h3><span id="markImg4"></span>What is the smallest US state?</h3>
-<div id="choices"></div>
+<div id="q4Choices"></div>
 <br><br>
 <div id="q4Feedback"></div>
 <br>
@@ -58,7 +60,7 @@
 <br>
 
 <h3><span id="markImg7"></span>Which of these states was not one of the original 13 colonies?</h3>
-<select id="q7">
+<select id="q7" name="q7">
     <option value="">Select One</option>
     <option value="ct">Connecticut</option>
     <option value="vt">Vermont</option>
@@ -81,212 +83,179 @@
 <div id="q8Feedback"></div>
 <br>
 
-<h3 id="validationFdbk" class="bg-danger text-white"></h3>
-<button class="btn btn-outline-primary">Submit Quiz</button>
-<br><br>
-<h2 id="totalScore"></h2>
-<br><br>
-<h2 id="prevScores">Previous scores: </h2>
-
-<!-- Step 2. Add the submit class to help find the button with jQuery-->
-<button class="btn btn-outline-success submit"> Submit Quiz</button>
+<button id="submitBtn" class="btn btn-outline-success"> Submit Quiz</button>
 <br><br>
 
-<h2 id="totalScore" class="text-info"></h2>
+<h2 id="totalScore" class="text-info">Total score:</h2>
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 
+
 <script>
-  $(document).ready(function () {
+    $(document).ready(function () {
 
-    //Global Variables
-    var score = 0;
-    var allScores;
+        displayQ4Choices();
+        displayQ6Choices();
 
-    if (window.localStorage) {
-      allScores = [window.localStorage.getItem("allScores")] || [];
-    } else {
-      allScores = [parseInt($("#prevScores").html() || [])];
-    }
-
-    //event Listener
-    //"Submit Quiz" button
-    $("button").on("click", gradeQuiz);
-
-    //Question 5 images
-    $(".q5Choice").on("click", function () {
-      $(".q5Choice").css("background", "");
-      $(this).css("background", "rgb(255, 255, 0)");
-    });
-
-    displayQ4Choices();
-    displayQ6Choices();
-    //functions
-    function displayQ4Choices() {
-      let q4ChoicesArray = ["Maine", "Rhode Island", "Maryland", "Delaware"];
-      q4ChoicesArray = _.shuffle(q4ChoicesArray);
-      for (let i = 0; i < q4ChoicesArray.length; i++) {
-        $("#q4Choices").append(`<input type="radio" name="q4" id="${q4ChoicesArray[i]}" value="${q4ChoicesArray[i]}"> <label for="${q4ChoicesArray[i]}">${q4ChoicesArray[i]}</label>`);
-      }
-    }//displayQ4Choices
-
-    function displayQ6Choices() {
-      let q6ChoicesArray = ["Deep South", "Northeast", "Southwest", "Pacific Northwest"];
-      q6ChoicesArray = _.shuffle(q6ChoicesArray);
-      for (let i = 0; i < q6ChoicesArray.length; i++) {
-        $("#q6Choices").append(`<input type="radio" name="q6" id="${q6ChoicesArray[i]}" value="${q6ChoicesArray[i]}"> <label for="${q6ChoicesArray[i]}">${q6ChoicesArray[i]}</label>`);
-      }
-    }// displayQ6Choices
-
-    function isFormValid() {
-      let isValid = true;
-      if ($("#q1").val() == "") {
-        isValid = false;
-        $("#validationFdbk").html("Question 1 was not answered");
-      }
-      return isValid;
-    }// isFormValid
-
-    function rightAnswer(index) {
-      $(`#q${index}Feedback`).html("Correct!");
-      $(`#q${index}Feedback`).attr("class", "bg-success text-white");
-      $(`#markImg${index}`).html("<img src='img/checkmark.png' alt='checkmark'>");
-      score += 12.5;
-    }// rightAnswer
-
-    function wrongAnswer(index) {
-      $(`#q${index}Feedback`).html("Incorrect!");
-      $(`#q${index}Feedback`).attr("class", "bg-warning text-white");
-      $(`#markImg${index}`).html("<img src='img/xmark.png' alt='xmark'>");
-    }// wrongAnswer
-
-    function gradeQuiz() {
-      $("#validationFdbk").html(""); //resets validation feedback
-      if (!isFormValid()) {
-        return;
-      }
-
-      //variables
-      score = 0;
-      let q1Response = $("#q1").val().toLowerCase();
-      let q2Response = $("#q2").val();
-      let q4Response = $("input[name=q4]:checked").val();
-
-      //Question 1
-      if (q1Response == "sacramento") {
-        rightAnswer(1);
-      } else {
-        wrongAnswer(1);
-      }
-
-      //Question 2
-      if (q2Response == "mo") {
-        rightAnswer(2);
-      } else {
-        wrongAnswer(2);
-      }
-
-      //Question 3
-      if ($("#Jefferson").is(":checked") && $("#Roosevelt").is(":checked") && !$("#Jackson").is(":checked") && !$("#Franklin").is(":checked")) {
-        rightAnswer(3);
-      } else {
-        wrongAnswer(3);
-      }
-
-      //Question 4
-      if (q4Response == "Rhode Island") {
-        rightAnswer(4);
-      } else {
-        wrongAnswer(4);
-      }
-
-      //Question 5
-      if ($("#seal2").css("background-color") == "rgb(255, 255, 0)") {
-        rightAnswer(5);
-      } else {
-        wrongAnswer(5);
-      }
-
-      //Question 6
-      if (q4Response == "Southwest") {
-        rightAnswer(6);
-      } else {
-        wrongAnswer(6);
-      }
-
-      //Question 7
-      if (q2Response == "vt") {
-        rightAnswer(7);
-      } else {
-        wrongAnswer(7);
-      }
-
-      //Question 8
-      if ($("#Yosemite").is(":checked") && $("#DeathValley").is(":checked") && $("#JoshuaTree").is(":checked") && !$("#MonumentValley").is(":checked") && !$("#Zion").is(":checked")) {
-        rightAnswer(8);
-      } else {
-        wrongAnswer(8);
-      }
-
-      // BEWARE THIS ERROR:
-      // SyntaxError: Unexpected token q in JSON at position 0
-      // It means you forgot to convert your data object to a string for transmission
-
-      // Step 1. Add a click handler for the button
-      // (see the button for Step 2.)
-      $(".submit").on("click touchstart", function (e) {
-
-        // Step 3. Make the AJAX POST call back to the server
-        // making sure to get values of the inputs AND
-        // to convert the data to a string using JSON.stringify()
-        $.ajax({
-          url: "/",
-          method: "post",
-          contentType: "application/json",
-          data: JSON.stringify({
-            questions: {
-              "1": $("#q1").val(),
-              "2": $("#q2").val(),
-              "3": $("#Jefferson").is(":checked") && $("#Roosevelt").is(":checked")
+        //functions
+        function displayQ4Choices() {
+            let q4ChoicesArray = ["Maine", "Rhode Island", "Maryland", "Delaware"];
+            q4ChoicesArray = _.shuffle(q4ChoicesArray);
+            for (let i = 0; i < q4ChoicesArray.length; i++) {
+                $("#q4Choices").append(`<input type="radio" name="q4" id="${q4ChoicesArray[i]}" value="${q4ChoicesArray[i]}"> <label for="${q4ChoicesArray[i]}">${q4ChoicesArray[i]}</label>`);
             }
-          }),
-          dataType: "json",
-          success: function (result) {
-            // Step 5. Process the results by changing the HTML
-            // to display the results of the quiz
-            console.log('result of call to POST router', result);
-            $("#q1").val(result.original.questions["1"]);
-          },
-          error: function (xhr, status) {
-            console.log('error calling to POST router', status);
-          },
-          complete: function () {
-          }
-        });
-      });
+        }//displayQ4Choices
 
-      // allScores.push(score);
-      // if (window.localStorage) {
-      //   window.localStorage.setItem("allScores", allScores);
-      // }
-      // for (let i = 0; i < allScores.length; i++) {
-      //   if (allScores[i] != null) {
-      //     $("#prevScores").append(`${allScores[i]}  `);
-      //   }
-      // }
+        function displayQ6Choices() {
+            let q6ChoicesArray = ["Deep South", "Northeast", "Southwest", "Pacific Northwest"];
+            q6ChoicesArray = _.shuffle(q6ChoicesArray);
+            for (let i = 0; i < q6ChoicesArray.length; i++) {
+                $("#q6Choices").append(`<input type="radio" name="q6" id="${q6ChoicesArray[i]}" value="${q6ChoicesArray[i]}"> <label for="${q6ChoicesArray[i]}">${q6ChoicesArray[i]}</label>`);
+            }
+        }// displayQ6Choices
 
-      if (score < 80) {
-        $("#totalScore").attr("class", "text-danger");
-      } else {
-        $("#totalScore").attr("class", "text-success");
-      }
-      if (score == 100) {
-        $("#totalScore").html(`Congratulations! You reached a total score of ${score} points!`);
-      } else {
-        $("#totalScore").html(`Total Score: ${score}`);
-      }
-    }// gradeQuiz
-  });//ready
+        //Event Listeners
+        $(".q5choice").on("click", function () {
+            $(".q5choice").css("background-color", ""); //resets background color
+            $(this).css("background-color", "rgb(255, 255, 0)");
+        })
+
+
+        $("#submitBtn").on("click", function () {
+            let q1Response = $("#q1").val();
+            let q2Response = $("#q2").val();
+            let q3aResponse = $("#Franklin").is(":checked");
+            let q3bResponse = $("#Jackson").is(":checked");
+            let q3cResponse = $("#Jefferson").is(":checked");
+            let q3dResponse = $("#Roosevelt").is(":checked")
+            let q4Response = $("input[name=q4]:checked").val();
+            let q5Response = "";
+            if ($("#seal1").css("background-color") == "rgb(255, 255, 0)") {
+                q5Response = "seal1";
+            } else if ($("#seal2").css("background-color") == "rgb(255, 255, 0)") {
+                q5Response = "seal2";
+            } else {
+                q5Response = "seal3";
+            }
+
+            let q6Response = $("input[name=q6]:checked").val();
+            let q7Response = $("#q7").val();
+            let q8aResponse = $("#Yosemite").is(":checked");
+            let q8bResponse = $("#DeathValley").is(":checked");
+            let q8cResponse = $("#JoshuaTree").is(":checked");
+            let q8dResponse = $("#MonumentValley").is(":checked");
+            let q8eResponse = $("#Zion").is(":checked");
+
+            $.ajax({
+                method: "GET",
+                url: "/gradeQuiz",
+                dataType: "json",
+                data: {
+                    "q1": q1Response,
+                    "q2": q2Response,
+                    "q3a": q3aResponse,
+                    "q3b": q3bResponse,
+                    "q3c": q3cResponse,
+                    "q3d": q3dResponse,
+                    "q4": q4Response,
+                    "q5": q5Response,
+                    "q6": q6Response,
+                    "q7": q7Response,
+                    "q8a": q8aResponse,
+                    "q8b": q8bResponse,
+                    "q8c": q8cResponse,
+                    "q8d": q8dResponse,
+                    "q8e": q8eResponse
+                },
+                success: function (result, status) {
+                    // alert(result);
+                    $("#q1Feedback").html(result.feedback1);
+                    $("#q2Feedback").html(result.feedback2);
+                    $("#q3Feedback").html(result.feedback3);
+                    $("#q4Feedback").html(result.feedback4);
+                    $("#q5Feedback").html(result.feedback5);
+                    $("#q6Feedback").html(result.feedback6);
+                    $("#q7Feedback").html(result.feedback7);
+                    $("#q8Feedback").html(result.feedback8);
+
+                    if (result.feedback1 == "Correct!") {
+                        $("#q1Feedback").attr("class", "bg-success text-white");
+                        $("#markImg1").html("<img src='img/checkmark.png' alt='checkmark'>");
+                    } else {
+                        $("#q1Feedback").attr("class", "bg-warning text-white");
+                        $("#markImg1").html("<img src='img/xmark.png' alt='xmark'>");
+                    }
+
+                    if (result.feedback2 == "Correct!") {
+                        $("#q2Feedback").attr("class", "bg-success text-white");
+                        $("#markImg2").html("<img src='img/checkmark.png' alt='checkmark'>");
+                    } else {
+                        $("#q2Feedback").attr("class", "bg-warning text-white");
+                        $("#markImg2").html("<img src='img/xmark.png' alt='xmark'>");
+                    }
+
+                    if (result.feedback3 == "Correct!") {
+                        $("#q3Feedback").attr("class", "bg-success text-white");
+                        $("#markImg3").html("<img src='img/checkmark.png' alt='checkmark'>");
+                    } else {
+                        $("#q3Feedback").attr("class", "bg-warning text-white");
+                        $("#markImg3").html("<img src='img/xmark.png' alt='xmark'>");
+                    }
+
+                    if (result.feedback4 == "Correct!") {
+                        $("#q4Feedback").attr("class", "bg-success text-white");
+                        $("#markImg4").html("<img src='img/checkmark.png' alt='checkmark'>");
+                    } else {
+                        $("#q4Feedback").attr("class", "bg-warning text-white");
+                        $("#markImg4").html("<img src='img/xmark.png' alt='xmark'>");
+                    }
+
+                    if (result.feedback5 == "Correct!") {
+                        $("#q5Feedback").attr("class", "bg-success text-white");
+                        $("#markImg5").html("<img src='img/checkmark.png' alt='checkmark'>");
+                    } else {
+                        $("#q5Feedback").attr("class", "bg-warning text-white");
+                        $("#markImg5").html("<img src='img/xmark.png' alt='xmark'>");
+                    }
+
+                    if (result.feedback6 == "Correct!") {
+                        $("#q6Feedback").attr("class", "bg-success text-white");
+                        $("#markImg6").html("<img src='img/checkmark.png' alt='checkmark'>");
+                    } else {
+                        $("#q6Feedback").attr("class", "bg-warning text-white");
+                        $("#markImg6").html("<img src='img/xmark.png' alt='xmark'>");
+                    }
+
+                    if (result.feedback7 == "Correct!") {
+                        $("#q7Feedback").attr("class", "bg-success text-white");
+                        $("#markImg7").html("<img src='img/checkmark.png' alt='checkmark'>");
+                    } else {
+                        $("#q7Feedback").attr("class", "bg-warning text-white");
+                        $("#markImg7").html("<img src='img/xmark.png' alt='xmark'>");
+                    }
+
+                    if (result.feedback8 == "Correct!") {
+                        $("#q8Feedback").attr("class", "bg-success text-white");
+                        $("#markImg8").html("<img src='img/checkmark.png' alt='checkmark'>");
+                    } else {
+                        $("#q8Feedback").attr("class", "bg-warning text-white");
+                        $("#markImg8").html("<img src='img/xmark.png' alt='xmark'>");
+                    }
+
+                    if (result.score < 80) {
+                        $("#totalScore").attr("class", "text-danger");
+                    } else {
+                        $("#totalScore").attr("class", "text-success");
+                    }
+                    if (result.score < 80) {
+                        $("#totalScore").html("Total Score: " + result.score);
+                    } else {
+                        $("#totalScore").html("Congratulations! You reached a total score of " + result.score + " points!");
+                    }
+                }
+            });//ajax
+        });//submitBtn
+    });//ready
 </script>
 
 </body>

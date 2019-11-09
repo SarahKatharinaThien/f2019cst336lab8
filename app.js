@@ -18,7 +18,7 @@ app.get("/gradeQuiz", function (req, res) {
     let score = 0;
     let f1, f2, f3, f4, f5, f6, f7, f8;
     f1 = f2 = f3 = f4 = f5 = f6 = f7 = f8 = "Incorrect!";
-    if (req.query.q1 == "sacramento") {
+    if (req.query.q1.toLowerCase() == "sacramento") {
         score += 12.5;
         f1 = "Correct!";
     }
